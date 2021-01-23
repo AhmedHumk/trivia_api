@@ -2,17 +2,18 @@ import React, { Component } from 'react';
 import $ from 'jquery';
 
 import '../stylesheets/QuizView.css';
+const GETBASEURL = require('./globals');
 
-const questionsPerPlay = 5; 
+const questionsPerPlay = 5;
 
 class QuizView extends Component {
   constructor(props){
     super();
     this.state = {
         quizCategory: null,
-        previousQuestions: [], 
+        previousQuestions: [],
         showAnswer: false,
-        categories: {},
+        categories: [],
         numCorrect: 0,
         currentQuestion: {},
         guess: '',
@@ -22,7 +23,7 @@ class QuizView extends Component {
 
   componentDidMount(){
     $.ajax({
-      url: `/categories`, //TODO: update request URL
+      url: `${GETBASEURL.BASEURL}/categories`, //TODO: update request URL
       type: "GET",
       success: (result) => {
         this.setState({ categories: result.categories })
@@ -48,7 +49,7 @@ class QuizView extends Component {
     if(this.state.currentQuestion.id) { previousQuestions.push(this.state.currentQuestion.id) }
 
     $.ajax({
-      url: '/quizzes', //TODO: update request URL
+      url: `${GETBASEURL.BASEURL}/quizzes`, //TODO: update request URL
       type: "POST",
       dataType: 'json',
       contentType: 'application/json',
@@ -57,7 +58,7 @@ class QuizView extends Component {
         quiz_category: this.state.quizCategory
       }),
       xhrFields: {
-        withCredentials: true
+        withCredentials: false // i dont use credentails in my app CORS
       },
       crossDomain: true,
       success: (result) => {
@@ -90,7 +91,7 @@ class QuizView extends Component {
   restartGame = () => {
     this.setState({
       quizCategory: null,
-      previousQuestions: [], 
+      previousQuestions: [],
       showAnswer: false,
       numCorrect: 0,
       currentQuestion: {},
@@ -104,18 +105,15 @@ class QuizView extends Component {
           <div className="quiz-play-holder">
               <div className="choose-header">Choose Category</div>
               <div className="category-holder">
-                  <div className="play-category" onClick={this.selectCategory}>ALL</div>
-                  {Object.keys(this.state.categories).map(id => {
-                  return (
-                    <div
-                      key={id}
-                      value={id}
-                      className="play-category"
-                      onClick={() => this.selectCategory({type:this.state.categories[id], id})}>
-                      {this.state.categories[id]}
-                    </div>
-                  )
-                })}
+              <div className="play-category" onClick={this.selectCategory}>ALL</div>
+              {this.state.categories.map(cat => {
+                return (
+                  <div key={cat.id} value={cat.id} className="play-category"
+                  onClick={() => this.selectCategory({type: cat.type, id: cat.id})}>
+                  {cat.type}
+                  </div>
+                )
+              })}
               </div>
           </div>
       )
@@ -152,7 +150,7 @@ class QuizView extends Component {
   renderPlay(){
     return this.state.previousQuestions.length === questionsPerPlay || this.state.forceEnd
       ? this.renderFinalScore()
-      : this.state.showAnswer 
+      : this.state.showAnswer
         ? this.renderCorrectAnswer()
         : (
           <div className="quiz-play-holder">
