@@ -61,7 +61,7 @@ class TriviaTestCase(unittest.TestCase):
         self.CreateNewQuestion = {
             "question": "are we Going To Mars in " + randomDatestr + " ?",
             "answer": "maybe",
-            "category": "16",
+            "category": "3",
             "difficulty": "2"
             }
 
@@ -114,15 +114,36 @@ class TriviaTestCase(unittest.TestCase):
         self.assertTrue(data["Created"])
 
     # test our playquizzes that we excpect to success
-    # Based on my Database Records
+    # Based on my trivia.psql
     def test_playquizzes(self):
-        res = self.client().post("/api/quizzes", json={"previous_questions": [3, 5], "quiz_category": {"id": 11}})
+        res = self.client().post('/api/quizzes', json={'previous_questions': [1, 2], 'quiz_category': {'id': 3}})
         data = json.loads(res.data)
         
         self.assertEqual(res.status_code, 200)
         self.assertEqual(data["success"], True)
         self.assertTrue(data["question"])
         self.assertTrue(data["previousQuestions"])
+
+    # Test with an intention to raise error
+    def test_playquizzes_that_have_invalid_category(self):
+        res = self.client().post('/api/quizzes', json={'previous_questions': [1, 2], 'quiz_category': {'id': 5000}})
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(data['success'], True)
+        self.assertTrue(data['question'])
+        self.assertTrue(data['previousQuestions'])
+
+    #catch the error 422
+    def test_playquizzes_ERR_NotFound(self):
+        res = self.client().post('/api/quizzes')
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 404)
+        self.assertEqual(data['success'], False)
+        self.assertTrue(data['message'])
+        self.assertTrue(data['error'])
+
 
 # Make the tests conveniently executable
 if __name__ == "__main__":

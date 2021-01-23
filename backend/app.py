@@ -298,7 +298,6 @@ def create_app(test_config=None):
         # now after we have collected our all categories
         # lets set our GetCategory with a randomize choice
         GetCategory = random.choice(Getallcats)
-        print("Random category id " + str(GetCategory.id))
         
       # now we are at least know that we have category
       # in our GetCategory
@@ -314,13 +313,17 @@ def create_app(test_config=None):
       # but lets check how many we have
       QuestionsCount = len(paginatedQuestions)
       print(str(QuestionsCount))
+      QFound = True
       # if our count is zero then we should abort 
       # probably we dont have records of questions that matched
       # in the category provided in the GetQuizzQuestions query
       if QuestionsCount ==0:
-        abort(NOT_FOUND_ERR)
+        QFound = False
 
       # now we can randomize our output to send it to the client
+      if not QFound:
+        abort(NOT_FOUND_ERR)
+
       randomizeQuestion = random.choice(paginatedQuestions)
       
       return jsonify({
