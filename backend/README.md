@@ -127,7 +127,7 @@ POST '/categories'
   "success": true
 }
 
-
+```
 
 ## Testing
 To run the tests, run
