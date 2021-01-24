@@ -150,11 +150,13 @@ def create_app(test_config=None):
     #   "success": true
     # }
     #------------------------------------------------------
-    Cdata = request.get_json()
-    #lets get our cat data or set none if its not exist
-    catname = Cdata.get("catname", None)
+  
     # lets Try to add new Category to our database
     try:
+      Cdata = request.get_json()
+      #lets get our cat data or set none if its not exist
+      catname = Cdata.get("catname", None)
+
       cats = Category(type=catname)
       cats.insert()
       return jsonify({
@@ -331,16 +333,18 @@ def create_app(test_config=None):
     #   "success": true
     # }
     #-----------------------------------------------------------------
-    Qdata = request.get_json()
-    # lets get our question data or set none if its not exist
-    # as in lesson 3 said.
-    question = Qdata.get("question", None)
-    answer = Qdata.get("answer", None)
-    category = Qdata.get("category", None)
-    difficulty = Qdata.get("difficulty", None)
-    print(category)
+
     # lets try to insert our question to our database
     try:
+      Qdata = request.get_json()
+      # lets get our question data or set none if its not exist
+      # as in lesson 3 said.
+      question = Qdata.get("question", None)
+      answer = Qdata.get("answer", None)
+      category = Qdata.get("category", None)
+      difficulty = Qdata.get("difficulty", None)
+      print(category)
+
       questions = Question(question=question, answer=answer, category=category, difficulty=difficulty)
       questions.insert()
       return jsonify({

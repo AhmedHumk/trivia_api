@@ -91,6 +91,17 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(data["success"], True)
         self.assertTrue(data["Created"])
 
+    # Test Create New Category Failure
+    def test_CreateNewCat_failure(self):
+        res = self.client().post('/api/categories')
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(data['success'], False)
+        self.assertTrue(data['message'])
+        self.assertTrue(data['error'], 422)
+
+
 
     # CollectQuestions Test
     def test_CollectQuestions(self):
@@ -102,6 +113,16 @@ class TriviaTestCase(unittest.TestCase):
         self.assertTrue(data["questions"])
         self.assertTrue(data["total_questions"])
         self.assertTrue(data["categories"])
+
+    # Try to collect a questions that will fail
+    def test_CollectQuestions_failure(self):
+        res = self.client().post('/api/questions?page=5000')
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(data['success'], False)
+        self.assertTrue(data['message'])
+        self.assertTrue(data['error'], 404)
         
     
     # start our create New random question For Test
@@ -112,6 +133,17 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(res.status_code, 200)
         self.assertEqual(data['success'], True)
         self.assertTrue(data["Created"])
+
+
+    # Test Create New Question Failure
+    def test_CreateNewQuestion_failure(self):
+        res = self.client().post('/api/questions')
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(data['success'], False)
+        self.assertTrue(data['message'])
+        self.assertTrue(data['error'], 422)
 
     # test our playquizzes that we excpect to success
     # Based on my trivia.psql
@@ -130,19 +162,74 @@ class TriviaTestCase(unittest.TestCase):
         data = json.loads(res.data)
 
         self.assertEqual(res.status_code, 200)
-        self.assertEqual(data['success'], True)
-        self.assertTrue(data['question'])
-        self.assertTrue(data['previousQuestions'])
-
-    #catch the error 422
-    def test_playquizzes_ERR_NotFound(self):
-        res = self.client().post('/api/quizzes')
-        data = json.loads(res.data)
-
-        self.assertEqual(res.status_code, 404)
         self.assertEqual(data['success'], False)
         self.assertTrue(data['message'])
-        self.assertTrue(data['error'])
+        self.assertEqual(data['error'], 422)
+
+    # Delete a question Test, also this will fail on a second run
+    # and based on your database 
+    def test_deleteQuestion(self):
+        res = self.client().delete('/api/questions/4')
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(data['success'], True)
+        self.assertEqual(data['deleted'], 4)
+
+    # Delete a question Test that will Fail
+    def test_deleteQuestion_Failure(self):
+        res = self.client().delete('/api/questions/5000')
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(data['success'], False)
+        self.assertTrue(data['message'])
+        self.assertEqual(data['error'], 422)
+
+    # Test Search Questions that will success
+    # use a words that should be exist in our database table
+    def test_searchquestions(self):
+        res = self.client().post('/api/questions/search', json={'searchTerm': 'wh'})
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(data['success'], True)
+        self.assertTrue(len(data['questions']))
+        self.assertTrue(data['total_questions'])
+
+
+    # Test Search Questions that will fail
+    # use a words that we make sure they arent exist in our database table
+    def test_searchquestions_failure(self):
+        res = self.client().post('/api/questions/search', json={'searchTerm': 'anythingthatisnotinthetable'})
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(data['success'], False)
+        self.assertTrue(data['message'])
+        self.assertEqual(data['error'], 422)
+
+    # Test Get Questions from category that will success
+    def test_GetQuestionsFromCategories(self):
+        res = self.client().get('/api/categories/2/questions')
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(data['success'], True)
+        self.assertTrue(data['total_questions'])
+        self.assertTrue(data['current_category'])
+        self.assertTrue(data['categories'])
+        self.assertTrue(data['questions'])
+
+    # Test Get Questions from category that will fail
+    def test_GetQuestionsFromCategories_failure(self):
+        res = self.client().get('/api/categories/5000/questions')
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(data['success'], False)
+        self.assertTrue(data['message'])
+        self.assertEqual(data['error'], 404)
 
 
 # Make the tests conveniently executable
