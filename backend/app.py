@@ -18,11 +18,12 @@ SERVER_ERR = 500
 SERVER_UNAVAILABLE = 503
 
 
-#########################################################################################
-# Pagenation Function Based on Lesson 3 {We are going to pagenate based on our Request}
+#######################################################
+# Pagenation Function Based on Lesson 3
+# {We are going to pagenate based on our Request}
 # pagenateTarget will work as our refrence
 # pagenateTarget = Q Then paginate question
-# pagenateTarget = C then paginate categories 
+# pagenateTarget = C then paginate categories
 #######################################################
 def paginatePages(request, Querydata, pagenateTarget):
   page = request.args.get('page', 1, type=int)
@@ -38,6 +39,7 @@ def paginatePages(request, Querydata, pagenateTarget):
 
   return CurrentRequest
 
+# Create our app
 def create_app(test_config=None):
   # create and configure the app
   app = Flask(__name__)
@@ -57,6 +59,45 @@ def create_app(test_config=None):
   #######################################################
   @app.route('/api/categories')
   def collectCats():
+    #---------------------------------------------------------------
+    # - Applying the Review
+    #---------------------------------------------------------------
+    # GET '/categories'
+    # - Get a dictionary of categories in which the keys are the ids and the value is the corresponding string of the category
+    # - Request Arguments: None
+    # - Returns: An object with a single key, categories, that contains a object of id: category_string key:value pairs.
+    # the following example record is based on trivia.psql data
+    # {
+    #   "categories": {
+    #     {
+    #        "id": 1,
+    #         "type": "Science"
+    #     },
+    #     {
+    #         "id": 2,
+    #         "type": "Art"
+    #     },
+    #     {
+    #         "id": 3,
+    #         "type": "Geography"
+    #     },
+    #     {
+    #         "id": 4,
+    #         "type": "History"
+    #     },
+    #     {
+    #         "id": 5,
+    #         "type": "Entertainment"
+    #     },
+    #     {
+    #         "id": 6,
+    #         "type": "Sports"
+    #     }
+    #     },
+    #     "total_categories": 6,
+    #     "success": true
+    # }
+    #--------------------------------------------------------------
     try:
       # lets get the categories from our database
       GetCats = Category.query.order_by(Category.id).all()
@@ -94,6 +135,21 @@ def create_app(test_config=None):
   ####################################################################
   @app.route('/api/categories', methods=['POST'])
   def CreateNewCat():
+    #------------------------------------------------------
+    # POST '/categories'
+    # - Create a Category into our database
+    # - Request Arguments: an object with key, catname that will be used to be inserted into the db
+    # - Returns: Created catname with state of success as Boolean
+    # {
+    #   "categories": [
+    #   {
+    #     "catname": "Science",
+    #   }
+    #   ],
+    #   "Created": Science,
+    #   "success": true
+    # }
+    #------------------------------------------------------
     Cdata = request.get_json()
     #lets get our cat data or set none if its not exist
     catname = Cdata.get("catname", None)
@@ -116,6 +172,69 @@ def create_app(test_config=None):
   #####################################################################
   @app.route('/api/questions')
   def CollectQuestions():
+    #---------------------------------------------------------------
+    # GET '/questions'
+    # - Get a dictionary of questions in which the keys are the ids and the values is the corresponding string of the question, string of the answer,
+    # integer of category and integer of difficulty
+    # - Request Arguments: None
+    # - Returns: An object with questions, that each contains an object array of question id, question category id, question difficulty, question answer, and question, text.
+    # an object array of categories, total questions integer, success as Boolean.
+    # the following example record is based on trivia.psql data
+    # {
+    #   "questions": [
+    #       {
+    #         "answer": "Apollo 13",
+    #         "category": 5,
+    #         "difficulty": 4,
+    #         "id": 2,
+    #         "question": "What movie earned Tom Hanks his third straight Oscar nomination, in 1996?"
+    #       },
+    #       {
+    #         "answer": "Muhammad Ali",
+    #         "category": 4,
+    #         "difficulty": 1,
+    #         "id": 9,
+    #         "question": "What boxer's original name is Cassius Clay?"
+    #       },
+    #       {
+    #         "answer": "Lake Victoria",
+    #         "category": 3,
+    #         "difficulty": 5,
+    #         "id": 13,
+    #         "question": "What is the largest lake in Africa?"
+    #       }
+    #       {
+    #         "answer": "Mona Lisa",
+    #         "category": 2,
+    #         "difficulty": 3,
+    #         "id": 17,
+    #         "question": "La Giaconda is better known as what?"
+    #       }
+    #       ],
+    #       "total_questions": 4,
+    #       "categories": [
+    #       {
+    #         "id": 1,
+    #         "type": "Science"
+    #       }
+    #       {
+    #         "id": 2,
+    #         "type": "Art"
+    #       }
+    #       {
+    #         "id": 3,
+    #         "type": "Geography"
+    #       }
+    #       {
+    #         "id": 4,
+    #         "type": "History"
+    #       }
+    #       ],
+    #       "success": true
+    # }
+    #
+    #---------------------------------------------------------------
+
     # lets get all Questions
     GetQuestions = Question.query.order_by(Question.id).all()
     Qnum = len(GetQuestions)
@@ -150,6 +269,17 @@ def create_app(test_config=None):
   ##############################################################################
   @app.route('/api/questions/<int:questionid>', methods=['DELETE'])
   def deleteQuestion(questionid):
+    #----------------------------------------------------------------------------
+    # DELETE '/questions/<int:questionid>'
+    # - Delete a question based on questionid which is the id of the question .
+    # that we want to delete
+    # - Request Arguments: int:question_id
+    # - Returns: the deleted question id , success as Boolean
+    # {
+    #   "deleted": 1,    
+    #   "success": true
+    # }
+    #----------------------------------------------------------------------------
     try:
       Error_Delete = False
       # lets try to get our Question this will return None if there
@@ -182,6 +312,25 @@ def create_app(test_config=None):
   ######################################################################
   @app.route('/api/questions', methods=['POST'])
   def CreateNewQuestion():
+    #-----------------------------------------------------------------
+    # POST '/questions'
+    # - Create a New Question into our database
+    # - Request Arguments: an object with key, question, answer, category, difficulty,
+    # that will be used to be inserted into the db
+    # - Returns: Created question with state of success as Boolean
+    # {
+    #   "questions": [
+    #   {
+    #    "answer": "Maybe",
+    #     "category": 5,
+    #     "difficulty": 4,
+    #     "question": "are we going to mars in 2050 ?"
+    #   }
+    #   ],
+    #   "Created": are we going to mars in 2050 ?,
+    #   "success": true
+    # }
+    #-----------------------------------------------------------------
     Qdata = request.get_json()
     # lets get our question data or set none if its not exist
     # as in lesson 3 said.
@@ -209,6 +358,49 @@ def create_app(test_config=None):
   #####################################################################
   @app.route('/api/questions/search', methods=['POST'])
   def searchquestions():
+    #--------------------------------------------------------------
+    # POST '/questions/search'
+    # - Get a dictionary of questions based on the searchTerm
+    # - Request Arguments: An object with a key searchTerm
+    # - Returns: all questions that are matched with the searchterm keyword
+    # the following example record is based on trivia.psql data
+    # {
+    #   "questions": [
+    #       {
+    #         "answer": "Apollo 13",
+    #         "category": 5,
+    #         "difficulty": 4,
+    #         "id": 2,
+    #         "question": "What movie earned Tom Hanks his third straight Oscar nomination, in 1996?"
+    #       },
+    #       {
+    #         "answer": "Muhammad Ali",
+    #         "category": 4,
+    #         "difficulty": 1,
+    #         "id": 9,
+    #         "question": "What boxer's original name is Cassius Clay?"
+    #       },
+    #       {
+    #         "answer": "Lake Victoria",
+    #         "category": 3,
+    #         "difficulty": 5,
+    #         "id": 13,
+    #         "question": "What is the largest lake in Africa?"
+    #       }
+    #       {
+    #         "answer": "Mona Lisa",
+    #         "category": 2,
+    #         "difficulty": 3,
+    #         "id": 17,
+    #         "question": "La Giaconda is better known as what?"
+    #       }
+    #       ],
+    #       "total_questions": 4,
+    #       "success": true
+    # }
+    #--------------------------------------------------------------
+
+    
     # lets get our search data
     searchData = request.get_json()
     searchTerm = searchData.get('searchTerm', None)
@@ -246,6 +438,29 @@ def create_app(test_config=None):
   ###############################################################
   @app.route('/api/categories/<int:catid>/questions')
   def GetQuestionsFromCategories(catid):
+    #-----------------------------------------------------------
+    # GET '/categories/<int:catid>/questions'
+    # - Get a dictionary of questions based on the given catid
+    # - Request Arguments: An object with a key, category that contains id of the category of the questions to list: category_id key:value pairs.
+    # - Returns: current_category that is included in the parameter value[catid]
+    # an object array that holds questions found, total questions number, categories that based on the given id
+    # {
+    #   "current_category": "3",
+    #   "questions": [
+    #     {
+    #       "answer": "an answer of the question",
+    #       "category": 3,
+    #       "difficulty": <difficulty of the question >,
+    #       "id": <id of the question>,
+    #       "question": "the question from that category"
+    #     }
+    #     ],
+    #   "success": true,
+    #   "total_questions": 2
+    # }
+    #-----------------------------------------------------------
+
+    
     #lets Try To get All categories
     Getcategory = Category.query.get(catid)
     # if no categories Found abort with 404 Error
@@ -275,6 +490,24 @@ def create_app(test_config=None):
   ###################################################################
   @app.route('/api/quizzes', methods=['POST'])
   def playquizzes():
+    #----------------------------------------------------------------
+    # POST '/quizzes'
+    # - Get a dictionary of questions based on given category and previous question parameters and return a random questions within the given category,
+    # and that is not one of the previous questions.
+    # - Request Arguments: An object with a Valid key, category that contains id of the category of the questions,
+    # - Returns: previousQuestions, question, question difficulty, question answer, and question text.
+    # {
+    #   "previousQuestions": [1, 2],
+    #   "question": {
+    #       "answer": "an answer of the question",
+    #       "category": <category of the question>,
+    #       "difficulty": <difficulty of the question >,
+    #       "id": <id of the question>,
+    #       "question": "the question from that category"
+    #       },
+    #   "success": true
+    # }
+    #----------------------------------------------------------------
     try:
       #Get our quiz Data
       rdata = request.get_json()
