@@ -77,17 +77,56 @@ POST ...
 DELETE ...
 
 GET '/categories'
-- Fetches a dictionary of categories in which the keys are the ids and the value is the corresponding string of the category
+- Get a dictionary of categories in which the keys are the ids and the value is the corresponding string of the category
 - Request Arguments: None
-- Returns: An object with a single key, categories, that contains a object of id: category_string key:value pairs. 
-{'1' : "Science",
-'2' : "Art",
-'3' : "Geography",
-'4' : "History",
-'5' : "Entertainment",
-'6' : "Sports"}
+- Returns: An object with a single key, categories, that contains a object of id: category_string key:value pairs.
+the following example record is based on trivia.psql data
+{
+  "categories": {
+    {
+       "id": 1,
+        "type": "Science"
+    },
+    {
+        "id": 2,
+        "type": "Art"
+    },
+    {
+        "id": 3,
+        "type": "Geography"
+    },
+    {
+        "id": 4,
+        "type": "History"
+    },
+    {
+        "id": 5,
+        "type": "Entertainment"
+    },
+    {
+        "id": 6,
+        "type": "Sports"
+    }
+    },
+    "total_categories": 6,
+    "success": true
+}
 
-```
+
+POST '/categories'
+- Create a Category into our database
+- Request Arguments: an object with key, catname that will be used to be inserted into the db
+- Returns: Created catname with state of success as Boolean
+{
+  "categories": [
+  {
+    "catname": "Science",
+  }
+  ],
+  "Created": Science,
+  "success": true
+}
+
 
 
 ## Testing
